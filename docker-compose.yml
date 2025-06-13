@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - '5050:5000'
+    env_file:
+      - .env
+    networks:
+      - mirabellen-network
+
+networks:
+  mirabellen-network:
+    external: true
