@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { connectToDatabase } from './config/database.js'
 import { connectMongoose } from './config/mongoose.js'
+import productsRoutes from './routes/productsRoutes.js'
 
 dotenv.config()
 
@@ -11,10 +12,8 @@ const PORT = process.env.PORT || 3000
 const app = express()
 
 app.use(cors())
-
-app.get('/', (req, res) => {
-  res.send('Hello World')
-})
+app.use(express.json())
+app.use('/api/products', productsRoutes)
 
 async function startServer() {
   try {
