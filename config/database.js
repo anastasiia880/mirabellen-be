@@ -1,4 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const uri = process.env.MONGODB_URI
 
@@ -20,7 +23,7 @@ async function connectToDatabase() {
     return client
   } catch (error) {
     console.error('Error connecting to MongoDB:', error)
-    throw error
+    process.exit(1)
   }
 }
 
