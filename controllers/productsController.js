@@ -26,10 +26,10 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, in_stock, category, popular } = req.body
+    const { name, description, price, in_stock, category, popular } = req.body
     const image = req.file?.path
 
-    const newProduct = new Product({ name, price, in_stock, category, popular, image })
+    const newProduct = new Product({ name, description, price, in_stock, category, popular, image })
     const savedProduct = await newProduct.save()
     res.status(201).json(savedProduct)
   } catch (error) {
@@ -44,9 +44,9 @@ export const updateProduct = async (req, res) => {
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' })
     }
-    res.status(200).json(updatedUser)
+    res.status(200).json(updatedProduct)
   } catch (error) {
-    console.error('Error updating user:', error)
+    console.error('Error updating product:', error)
     res.status(500).json({ message: 'Internal server error' })
   }
 }
