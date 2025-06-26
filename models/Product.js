@@ -14,11 +14,19 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    inStock: {
+    in_stock: {
       type: Boolean,
       required: true,
     },
     category: {
+      type: String,
+      required: true,
+    },
+    popular: {
+      type: Boolean,
+      default: false,
+    },
+    image: {
       type: String,
       required: true,
     },

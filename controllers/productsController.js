@@ -1,8 +1,12 @@
 import Product from '../models/Product.js'
 
-export const getAllProducts = async (_, res) => {
+export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 })
+    const filter = {}
+    if (req.query.popular) {
+      filter.popular = req.query.popular === 'true'
+    }
+    const products = await Product.find(filter).sort({ createdAt: -1 })
     res.status(200).json(products)
   } catch (error) {
     console.error('Error fetching products:', error)
@@ -22,9 +26,10 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, inStock, category } = req.body
+    const { name, price, in_stock, category, popular } = req.body
+    const image = req.file?.path
 
-    const newProduct = new Product({ name, price, inStock, category })
+    const newProduct = new Product({ name, price, in_stock, category, popular, image })
     const savedProduct = await newProduct.save()
     res.status(201).json(savedProduct)
   } catch (error) {
