@@ -27,9 +27,17 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, in_stock, category, popular } = req.body
-    const image = req.file?.path
+    const imageUrls = req.files.map((file) => file.path)
 
-    const newProduct = new Product({ name, description, price, in_stock, category, popular, image })
+    const newProduct = new Product({
+      name,
+      description,
+      price,
+      in_stock,
+      category,
+      popular,
+      images: imageUrls,
+    })
     const savedProduct = await newProduct.save()
     res.status(201).json(savedProduct)
   } catch (error) {
@@ -40,10 +48,27 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    const productId = req.params.id
+
+    let images = []
+    if (req.files && req.files.length > 0) {
+      images = req.files.map((file) => file.path)
+    }
+
+    const updateData = {
+      ...req.body,
+    }
+
+    if (images.length > 0) {
+      updateData.images = images
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true })
+
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' })
     }
+
     res.status(200).json(updatedProduct)
   } catch (error) {
     console.error('Error updating product:', error)

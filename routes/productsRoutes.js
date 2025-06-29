@@ -12,8 +12,8 @@ const router = express.Router()
 
 router.get('/', getAllProducts)
 router.get('/:id', getProductById)
-router.post('/', upload.single('image'), createProduct)
-router.put('/:id', updateProduct)
+router.post('/', upload.array('images', 5), createProduct)
+router.put('/:id', upload.array('images', 5), updateProduct)
 router.delete('/:id', deleteProduct)
 
 export default router
