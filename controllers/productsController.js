@@ -6,7 +6,7 @@ export const getAllProducts = async (req, res) => {
     if (req.query.popular) {
       filter.popular = req.query.popular === 'true'
     }
-    const products = await Product.find(filter).sort({ createdAt: -1 })
+    const products = await Product.find(filter).sort({ createdAt: -1 }).populate('category')
     res.status(200).json(products)
   } catch (error) {
     console.error('Error fetching products:', error)
@@ -16,7 +16,7 @@ export const getAllProducts = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
+    const product = await Product.findById(req.params.id).populate('category')
     res.status(200).json(product)
   } catch (error) {
     console.error('Error fetching product:', error)
@@ -63,7 +63,9 @@ export const updateProduct = async (req, res) => {
       updateData.images = images
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true })
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, {
+      new: true,
+    }).populate('category')
 
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' })
