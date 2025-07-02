@@ -6,6 +6,7 @@ import { connectToDatabase } from './config/database.js'
 import { connectMongoose } from './config/mongoose.js'
 import productsRoutes from './routes/productsRoutes.js'
 import authRoutes from './routes/authRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
 
 dotenv.config()
 
@@ -24,6 +25,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.use('/api/products', productsRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api/categories', categoryRoutes)
 
 async function startServer() {
   try {
