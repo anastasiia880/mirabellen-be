@@ -1,4 +1,5 @@
 import Product from '../models/Product.js'
+import Category from '../models/Category.js'
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -88,5 +89,56 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     console.error('Error deleting product:', error)
     res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const {
+      search = '',
+      category,
+      sort = 'createdAt',
+      order = 'desc',
+      page = 1,
+      limit = 10,
+    } = req.query
+
+    const filter = {
+      name: { $regex: search, $options: 'i' },
+    }
+
+    if (category) {
+      const categoryDoc = await Category.findOne({ slug: category })
+      if (categoryDoc) {
+        filter.category = categoryDoc._id
+      } else {
+        return res.status(200).json({
+          total: 0,
+          page: Number(page),
+          pages: 0,
+          items: [],
+        })
+      }
+    }
+
+    const products = await Product.find(filter)
+      .populate('category')
+      .sort({ [sort]: order === 'asc' ? 1 : -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit))
+
+    const total = await Product.countDocuments(filter)
+
+    res.status(200).json({
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      items: products,
+    })
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to fetch category products',
+      error: err.message,
+    })
   }
 }
