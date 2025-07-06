@@ -94,14 +94,7 @@ export const deleteProduct = async (req, res) => {
 
 export const getProductsByCategory = async (req, res) => {
   try {
-    const {
-      search = '',
-      category,
-      sort = 'createdAt',
-      order = 'desc',
-      page = 1,
-      limit = 10,
-    } = req.query
+    const { search = '', category, sort = 'name', order = 'desc', page = 1, limit = 10 } = req.query
 
     const filter = {
       name: { $regex: search, $options: 'i' },
