@@ -1,6 +1,6 @@
 import express from 'express'
 import {
-  getProductsByCategory,
+  getProducts,
   getProductById,
   createProduct,
   updateProduct,
@@ -10,7 +10,7 @@ import upload from '../middleware/upload.js'
 
 const router = express.Router()
 
-router.get('/', getProductsByCategory)
+router.get('/', getProducts)
 router.get('/:id', getProductById)
 router.post('/', upload.array('images', 5), createProduct)
 router.put('/:id', upload.array('images', 5), updateProduct)
