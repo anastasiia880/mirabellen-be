@@ -27,8 +27,20 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, in_stock, category, popular } = req.body
+    const { name, description, price, in_stock, category, popular, tags } = req.body
     const imageUrls = req.files.map((file) => file.path)
+
+    let processedTags = []
+    if (tags) {
+      if (Array.isArray(tags)) {
+        processedTags = tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
+      } else if (typeof tags === 'string') {
+        processedTags = tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+      }
+    }
 
     const newProduct = new Product({
       name,
@@ -37,9 +49,11 @@ export const createProduct = async (req, res) => {
       in_stock,
       category,
       popular,
+      tags: processedTags,
       images: imageUrls,
     })
     const savedProduct = await newProduct.save()
+    await savedProduct.populate('category')
     res.status(201).json(savedProduct)
   } catch (error) {
     console.error('Error creating product:', error)
@@ -58,6 +72,17 @@ export const updateProduct = async (req, res) => {
 
     const updateData = {
       ...req.body,
+    }
+
+    if (updateData.tags) {
+      if (Array.isArray(updateData.tags)) {
+        updateData.tags = updateData.tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
+      } else if (typeof updateData.tags === 'string') {
+        updateData.tags = updateData.tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+      }
     }
 
     if (images.length > 0) {
@@ -92,12 +117,28 @@ export const deleteProduct = async (req, res) => {
   }
 }
 
-export const getProductsByCategory = async (req, res) => {
+export const getProducts = async (req, res) => {
   try {
-    const { search = '', category, sort = 'name', order = 'desc', page = 1, limit = 10 } = req.query
+    const {
+      search = '',
+      tags,
+      minPrice,
+      maxPrice,
+      inStock,
+      category,
+      sort = 'name',
+      order = 'desc',
+      page = 1,
+      limit = 10,
+    } = req.query
 
-    const filter = {
-      name: { $regex: search, $options: 'i' },
+    const filter = {}
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } },
+      ]
     }
 
     if (category) {
@@ -112,6 +153,21 @@ export const getProductsByCategory = async (req, res) => {
           items: [],
         })
       }
+    }
+
+    if (tags) {
+      const tagList = tags.split(',').map((tag) => tag.trim())
+      filter.tags = { $in: tagList }
+    }
+
+    if (minPrice || maxPrice) {
+      filter.price = {}
+      if (minPrice) filter.price.$gte = Number(minPrice)
+      if (maxPrice) filter.price.$lte = Number(maxPrice)
+    }
+
+    if (inStock !== undefined) {
+      filter.in_stock = inStock === 'true'
     }
 
     const products = await Product.find(filter)
@@ -130,7 +186,7 @@ export const getProductsByCategory = async (req, res) => {
     })
   } catch (err) {
     res.status(500).json({
-      message: 'Failed to fetch category products',
+      message: 'Failed to fetch products',
       error: err.message,
     })
   }
