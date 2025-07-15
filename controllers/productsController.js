@@ -191,3 +191,16 @@ export const getProducts = async (req, res) => {
     })
   }
 }
+
+export const getAvailableTags = async (req, res) => {
+  try {
+    const tags = await Product.distinct('tags')
+
+    const availableTags = tags.filter((tag) => tag && tag.trim().length > 0).sort()
+
+    res.status(200).json(availableTags)
+  } catch (error) {
+    console.error('Error fetching available tags:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
