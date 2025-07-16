@@ -122,9 +122,7 @@ export const getProducts = async (req, res) => {
     const {
       search = '',
       tags,
-      minPrice,
-      maxPrice,
-      inStock,
+      in_stock,
       category,
       sort = 'name',
       order = 'desc',
@@ -160,19 +158,18 @@ export const getProducts = async (req, res) => {
       filter.tags = { $in: tagList }
     }
 
-    if (minPrice || maxPrice) {
-      filter.price = {}
-      if (minPrice) filter.price.$gte = Number(minPrice)
-      if (maxPrice) filter.price.$lte = Number(maxPrice)
+    if (in_stock !== undefined) {
+      filter.in_stock = in_stock === 'true'
     }
 
-    if (inStock !== undefined) {
-      filter.in_stock = inStock === 'true'
-    }
+    const allowedSortFields = ['name', 'price']
+    const sortField = allowedSortFields.includes(sort) ? sort : 'name'
+
+    const sortOrder = order === 'asc' ? 1 : -1
 
     const products = await Product.find(filter)
       .populate('category')
-      .sort({ [sort]: order === 'asc' ? 1 : -1 })
+      .sort({ [sortField]: sortOrder })
       .skip((page - 1) * limit)
       .limit(Number(limit))
 
