@@ -27,7 +27,7 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, in_stock, category, popular, tags } = req.body
+    const { name, description, price, in_stock, category, popular, tags, modifications } = req.body
     const imageUrls = req.files.map((file) => file.path)
 
     let processedTags = []
@@ -42,6 +42,18 @@ export const createProduct = async (req, res) => {
       }
     }
 
+    let processedModifications = []
+    if (modifications) {
+      if (Array.isArray(modifications)) {
+        processedModifications = modifications.map((mod) => ({
+          name: mod.name,
+          price: Number(mod.price),
+          in_stock: mod.in_stock !== undefined ? mod.in_stock : true,
+          sku: mod.sku || null,
+        }))
+      }
+    }
+
     const newProduct = new Product({
       name,
       description,
@@ -51,6 +63,7 @@ export const createProduct = async (req, res) => {
       popular,
       tags: processedTags,
       images: imageUrls,
+      modifications: processedModifications,
     })
     const savedProduct = await newProduct.save()
     await savedProduct.populate('category')
@@ -82,6 +95,17 @@ export const updateProduct = async (req, res) => {
           .split(',')
           .map((tag) => tag.trim())
           .filter((tag) => tag.length > 0)
+      }
+    }
+
+    if (updateData.modifications) {
+      if (Array.isArray(updateData.modifications)) {
+        updateData.modifications = updateData.modifications.map((mod) => ({
+          name: mod.name,
+          price: Number(mod.price),
+          in_stock: mod.in_stock !== undefined ? mod.in_stock : true,
+          sku: mod.sku || null,
+        }))
       }
     }
 
