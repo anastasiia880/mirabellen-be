@@ -1,5 +1,31 @@
 import mongoose from 'mongoose'
 
+const modificationSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    in_stock: {
+      type: Boolean,
+      default: true,
+    },
+    sku: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+  },
+  {
+    timestamps: true,
+    _id: false,
+  }
+)
+
 const productSchema = new mongoose.Schema(
   {
     id: {
@@ -39,6 +65,10 @@ const productSchema = new mongoose.Schema(
       type: [String],
       default: [],
       index: true,
+    },
+    modifications: {
+      type: [modificationSchema],
+      default: [],
     },
   },
   {
