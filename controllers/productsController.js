@@ -44,8 +44,21 @@ export const createProduct = async (req, res) => {
 
     let processedModifications = []
     if (modifications) {
-      if (Array.isArray(modifications)) {
-        processedModifications = modifications.map((mod) => ({
+      let modificationsArray = modifications
+
+      if (typeof modificationsArray === 'string') {
+        try {
+          modificationsArray = JSON.parse(modificationsArray)
+        } catch (error) {
+          console.error('Error parsing modifications JSON:', error)
+          return res
+            .status(400)
+            .json({ message: 'Invalid modifications format. Must be valid JSON.' })
+        }
+      }
+
+      if (Array.isArray(modificationsArray)) {
+        processedModifications = modificationsArray.map((mod) => ({
           name: mod.name,
           price: Number(mod.price),
           in_stock: mod.in_stock !== undefined ? mod.in_stock : true,
@@ -99,13 +112,28 @@ export const updateProduct = async (req, res) => {
     }
 
     if (updateData.modifications) {
-      if (Array.isArray(updateData.modifications)) {
-        updateData.modifications = updateData.modifications.map((mod) => ({
+      let modificationsArray = updateData.modifications
+
+      if (typeof modificationsArray === 'string') {
+        try {
+          modificationsArray = JSON.parse(modificationsArray)
+        } catch (error) {
+          console.error('Error parsing modifications JSON:', error)
+          return res
+            .status(400)
+            .json({ message: 'Invalid modifications format. Must be valid JSON.' })
+        }
+      }
+
+      if (Array.isArray(modificationsArray)) {
+        updateData.modifications = modificationsArray.map((mod) => ({
           name: mod.name,
           price: Number(mod.price),
           in_stock: mod.in_stock !== undefined ? mod.in_stock : true,
           sku: mod.sku || null,
         }))
+      } else {
+        return res.status(400).json({ message: 'Modifications must be an array.' })
       }
     }
 
