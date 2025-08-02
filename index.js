@@ -7,6 +7,7 @@ import { connectMongoose } from './config/mongoose.js'
 import productsRoutes from './routes/productsRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
+import cartRoutes from './routes/cartRoutes.js'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use(express.json())
 app.use('/api/products', productsRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/categories', categoryRoutes)
+app.use('/api/cart', cartRoutes)
 
 async function startServer() {
   try {
