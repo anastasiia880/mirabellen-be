@@ -8,6 +8,7 @@ import productsRoutes from './routes/productsRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import cartRoutes from './routes/cartRoutes.js'
+import paymentRoutes from './routes/paymentRoutes.js'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/products', productsRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/categories', categoryRoutes)
 app.use('/api/cart', cartRoutes)
+app.use('/api/payment', paymentRoutes)
 
 async function startServer() {
   try {

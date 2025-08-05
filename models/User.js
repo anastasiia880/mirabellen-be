@@ -41,6 +41,19 @@ userSchema.statics.login = async function (email, password) {
   throw Error('incorrect email')
 }
 
+userSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+  await mongoose.model('Cart').deleteOne({ user: this._id })
+  next()
+})
+
+userSchema.pre('findOneAndDelete', async function (next) {
+  const doc = await this.model.findOne(this.getQuery())
+  if (doc) {
+    await mongoose.model('Cart').deleteOne({ user: doc._id })
+  }
+  next()
+})
+
 const User = mongoose.model('User', userSchema)
 
 export default User
